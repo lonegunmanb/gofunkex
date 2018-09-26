@@ -73,9 +73,17 @@ func Test_Any(t *testing.T) {
 	assert.False(t, arrFunk.AnyMeets(func(i int) bool { return i > 3 }))
 }
 
-func Test_All(t *testing.T){
+func Test_All(t *testing.T) {
 	arr := []int{1, 2, 3}
 	arrFunk := NewArrayFunk(arr)
 	assert.False(t, arrFunk.AllMeets(func(i int) bool { return i%2 == 0 }))
 	assert.True(t, arrFunk.AllMeets(func(i int) bool { return i <= 3 }))
+}
+
+func Test_Filter(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := []int{2}
+	arrFunk := NewArrayFunk(arr)
+	filteredFunk := arrFunk.Filter(func(i int) bool { return i%2 == 0 })
+	assert.True(t, reflect.DeepEqual(expected, filteredFunk.Arr))
 }

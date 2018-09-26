@@ -57,6 +57,9 @@ func (something ArrayFunk) AllMeets(predicate interface{}) bool {
 	}
 	return true
 }
+func (something ArrayFunk) Filter(predicate interface{}) ArrayFunk {
+	return NewArrayFunk(funk.Filter(something.Arr, predicate))
+}
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
 	if predicate == nil {
