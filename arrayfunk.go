@@ -43,6 +43,20 @@ func (something ArrayFunk) AnyMeets(predicate interface{}) bool {
 	}
 	return false
 }
+func (something ArrayFunk) AllMeets(predicate interface{}) bool {
+	arr := something.Arr
+	checkPredicateType(predicate, arr)
+	funcValue := reflect.ValueOf(predicate)
+	arrValue := reflect.ValueOf(arr)
+	for i := 0; i < arrValue.Len(); i++ {
+		elem := arrValue.Index(i)
+		result := funcValue.Call([]reflect.Value{elem})[0].Interface().(bool)
+		if !result {
+			return false
+		}
+	}
+	return true
+}
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
 	if predicate == nil {
