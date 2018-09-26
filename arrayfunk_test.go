@@ -41,6 +41,12 @@ func Test_SimpleMap(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(expectedArr, actualArr))
 }
 
+func Test_Map_On_Empty_Slice(t *testing.T) {
+	var arr []int
+	actual := NewArrayFunk(arr).Map(func(i int) string { return strconv.Itoa(i) }).Arr
+	assert.Empty(t, actual)
+}
+
 func Test_CheckPredicateType_Nil_Predicate(t *testing.T) {
 	arr := []int{1}
 	assert.Panics(t, nil, arr)
@@ -74,11 +80,21 @@ func Test_Any(t *testing.T) {
 	assert.False(t, arrFunk.AnyMeets(func(i int) bool { return i > 3 }))
 }
 
+func Test_Any_Empty_Slice_Should_Return_False(t *testing.T) {
+	var arr []int
+	assert.False(t, NewArrayFunk(arr).AnyMeets(func(i int) bool { return true }))
+}
+
 func Test_All(t *testing.T) {
 	arr := []int{1, 2, 3}
 	arrFunk := NewArrayFunk(arr)
 	assert.False(t, arrFunk.AllMeets(func(i int) bool { return i%2 == 0 }))
 	assert.True(t, arrFunk.AllMeets(func(i int) bool { return i <= 3 }))
+}
+
+func Test_All_Empty_Slice_Should_Return_False(t *testing.T) {
+	var arr []int
+	assert.False(t, NewArrayFunk(arr).AllMeets(func(i int) bool { return true }))
 }
 
 func Test_Filter(t *testing.T) {
@@ -89,11 +105,21 @@ func Test_Filter(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(expected, filteredFunk.Arr))
 }
 
+func Test_Filter_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
+	var arr []int
+	assert.Empty(t, NewArrayFunk(arr).Filter(func(i int) bool { return true }).Arr)
+}
+
 func Test_Contains(t *testing.T) {
 	arr := []int{1, 2, 3}
 	arrFunk := NewArrayFunk(arr)
 	assert.True(t, arrFunk.Contains(1))
 	assert.False(t, arrFunk.Contains(0))
+}
+
+func Test_Contains_Empty_Slice_Should_Return_False(t *testing.T) {
+	var arr []int
+	assert.False(t, NewArrayFunk(arr).Contains(1))
 }
 
 func Test_Distinct(t *testing.T) {
@@ -102,6 +128,11 @@ func Test_Distinct(t *testing.T) {
 	arrFunk := NewArrayFunk(arr)
 	actual := arrFunk.Distinct().Arr
 	assert.True(t, reflect.DeepEqual(expected, actual))
+}
+
+func Test_Distinct_On_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
+	var arr []int
+	assert.Empty(t, NewArrayFunk(arr).Distinct().Arr)
 }
 
 func Test_Length(t *testing.T) {

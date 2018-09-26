@@ -48,6 +48,9 @@ func (something ArrayFunk) AllMeets(predicate interface{}) bool {
 	checkPredicateType(predicate, arr)
 	funcValue := reflect.ValueOf(predicate)
 	arrValue := reflect.ValueOf(arr)
+	if arrValue.Len() == 0 {
+		return false
+	}
 	for i := 0; i < arrValue.Len(); i++ {
 		elem := arrValue.Index(i)
 		result := funcValue.Call([]reflect.Value{elem})[0].Interface().(bool)
