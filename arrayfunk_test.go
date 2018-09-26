@@ -87,3 +87,10 @@ func Test_Filter(t *testing.T) {
 	filteredFunk := arrFunk.Filter(func(i int) bool { return i%2 == 0 })
 	assert.True(t, reflect.DeepEqual(expected, filteredFunk.Arr))
 }
+
+func Test_Contains(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.True(t, arrFunk.Contains(1))
+	assert.False(t, arrFunk.Contains(0))
+}
