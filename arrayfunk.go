@@ -111,6 +111,9 @@ func (something ArrayFunk) Initial() ArrayFunk {
 func (something ArrayFunk) Tail() ArrayFunk {
 	return NewArrayFunk(funk.Tail(something.Arr))
 }
+func (something ArrayFunk) Flatten() ArrayFunk {
+	return NewArrayFunk(funk.FlattenDeep(something.Arr))
+}
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
 	if predicate == nil {

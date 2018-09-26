@@ -218,3 +218,17 @@ func Test_Tail_Empty_Slice_Should_Return_Nil(t *testing.T) {
 	var arr []int
 	assert.Nil(t, NewArrayFunk(arr).Tail().Arr)
 }
+
+func Test_Flatten(t *testing.T) {
+	arr := [][]int{{1, 2}, {3, 4}}
+	expected := []int{1, 2, 3, 4}
+	arrFunk := NewArrayFunk(arr)
+	actual := arrFunk.Flatten().Arr
+	assert.True(t, reflect.DeepEqual(expected, actual))
+}
+
+func Test_Flatten_On_One_Dimension_Slice(t *testing.T) {
+	arr := []int{1, 2, 3}
+	actual := NewArrayFunk(arr).Flatten().Arr
+	assert.True(t, reflect.DeepEqual(arr, actual))
+}
