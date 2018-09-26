@@ -91,6 +91,24 @@ func (something ArrayFunk) Length() int {
 	return arrValue.Len()
 }
 
+func (something ArrayFunk) Count(predicate interface{}) int {
+	return something.Filter(predicate).Length()
+}
+
+func (something ArrayFunk) Head() interface{} {
+	return funk.Head(something.Arr)
+}
+
+func (something ArrayFunk) Last() interface{} {
+	return funk.Last(something.Arr)
+}
+func (something ArrayFunk) Initial() ArrayFunk {
+	return NewArrayFunk(funk.Initial(something.Arr))
+}
+func (something ArrayFunk) Tail() ArrayFunk {
+	return NewArrayFunk(funk.Tail(something.Arr))
+}
+
 func checkPredicateType(predicate interface{}, arr interface{}) {
 	if predicate == nil {
 		panic("Predicate required")

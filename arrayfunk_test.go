@@ -111,7 +111,7 @@ func Test_Length(t *testing.T) {
 }
 
 func Test_Length_Empty_Slice(t *testing.T) {
-	arr := []int{}
+	var arr []int
 	arrFunk := NewArrayFunk(arr)
 	assert.Equal(t, 0, arrFunk.Length())
 }
@@ -121,4 +121,69 @@ func Test_Empty(t *testing.T) {
 	arrFunk := NewArrayFunk(arr)
 	emptyFunk := arrFunk.Filter(func(i int) bool { return i > 3 })
 	assert.True(t, emptyFunk.Empty())
+}
+
+func Test_Empty_Slice_Should_Return_True(t *testing.T) {
+	var arr []int
+	assert.True(t, NewArrayFunk(arr).Empty())
+}
+
+func Test_Count(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.Equal(t, 1, arrFunk.Count(func(i int) bool { return i%2 == 0 }))
+}
+
+func Test_Count_Empty_Slice_Should_Return_Zero(t *testing.T) {
+	var arr []int
+	assert.Equal(t, 0, NewArrayFunk(arr).Count(func(i int) bool { return true }))
+}
+
+func Test_Head(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.Equal(t, 1, arrFunk.Head())
+}
+
+func Test_Head_Empty_Slice_Should_Return_Nil(t *testing.T) {
+	var arr []int
+	head := NewArrayFunk(arr).Head()
+	assert.Nil(t, head)
+}
+
+func Test_Last(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.Equal(t, 3, arrFunk.Last())
+}
+
+func Test_Last_Empty_Slice_Should_Return_Nil(t *testing.T) {
+	var arr []int
+	last := NewArrayFunk(arr).Last()
+	assert.Nil(t, last)
+}
+
+func Test_Initial(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := []int{1, 2}
+	arrFunk := NewArrayFunk(arr)
+	assert.True(t, reflect.DeepEqual(expected, arrFunk.Initial().Arr))
+}
+
+func Test_Initial_Empty_Slice_Should_Return_Nil(t *testing.T) {
+	var arr []int
+	initial := NewArrayFunk(arr).Initial()
+	assert.Nil(t, initial.Arr)
+}
+
+func Test_Tail(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := []int{2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.True(t, reflect.DeepEqual(expected, arrFunk.Tail().Arr))
+}
+
+func Test_Tail_Empty_Slice_Should_Return_Nil(t *testing.T) {
+	var arr []int
+	assert.Nil(t, NewArrayFunk(arr).Tail().Arr)
 }
