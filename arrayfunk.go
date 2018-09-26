@@ -60,8 +60,27 @@ func (something ArrayFunk) AllMeets(predicate interface{}) bool {
 func (something ArrayFunk) Filter(predicate interface{}) ArrayFunk {
 	return NewArrayFunk(funk.Filter(something.Arr, predicate))
 }
+
 func (something ArrayFunk) Contains(item interface{}) bool {
 	return funk.Contains(something.Arr, item)
+}
+
+func (something ArrayFunk) Distinct() ArrayFunk {
+	arr := something.Arr
+	arrValue := reflect.ValueOf(arr)
+	set := make(map[interface{}]struct{})
+	for i := 0; i < arrValue.Len(); i++ {
+		elem := arrValue.Index(i).Interface()
+		_, found := set[elem]
+		if !found {
+			set[elem] = struct{}{}
+		}
+	}
+	neatSlice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(arr).Elem()), 0, len(set))
+	for key := range set {
+		neatSlice = reflect.Append(neatSlice, reflect.ValueOf(key))
+	}
+	return NewArrayFunk(neatSlice.Interface())
 }
 
 func checkPredicateType(predicate interface{}, arr interface{}) {

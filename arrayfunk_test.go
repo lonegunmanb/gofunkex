@@ -94,3 +94,11 @@ func Test_Contains(t *testing.T) {
 	assert.True(t, arrFunk.Contains(1))
 	assert.False(t, arrFunk.Contains(0))
 }
+
+func Test_Distinct(t *testing.T) {
+	arr := []string{"a", "b", "b"}
+	expected := []string{"a", "b"}
+	arrFunk := NewArrayFunk(arr)
+	actual := arrFunk.Distinct().Arr
+	assert.True(t, reflect.DeepEqual(expected, actual))
+}
