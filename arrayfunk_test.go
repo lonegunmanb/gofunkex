@@ -40,6 +40,11 @@ func Test_SimpleMap(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(expectedArr, actualArr))
 }
 
+func Test_CheckPredicateType_Nil_Predicate(t *testing.T) {
+	arr := []int{1}
+	assert.Panics(t, nil, arr)
+}
+
 func Test_CheckPredicateType_Receive_NonFunc(t *testing.T) {
 	arr := []int{1}
 	assert.Panics(t, func() {

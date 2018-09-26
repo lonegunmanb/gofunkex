@@ -45,6 +45,9 @@ func (something ArrayFunk) AnyMeets(predicate interface{}) bool {
 }
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
+	if predicate == nil {
+		panic("Predicate required")
+	}
 	if !funk.IsFunction(predicate, 1, 1) {
 		panic("Second argument must be function")
 	}
