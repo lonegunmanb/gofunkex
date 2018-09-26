@@ -2,8 +2,9 @@ package gofunkex
 
 import (
 	"fmt"
-	"go-funk"
 	"reflect"
+
+	"github.com/thoas/go-funk"
 )
 
 type ArrayFunk struct {

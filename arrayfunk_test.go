@@ -1,10 +1,11 @@
 package gofunkex
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_ArrayShouldPassCheck(t *testing.T) {
