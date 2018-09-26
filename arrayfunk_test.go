@@ -103,3 +103,22 @@ func Test_Distinct(t *testing.T) {
 	actual := arrFunk.Distinct().Arr
 	assert.True(t, reflect.DeepEqual(expected, actual))
 }
+
+func Test_Length(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	assert.Equal(t, 3, arrFunk.Length())
+}
+
+func Test_Length_Empty_Slice(t *testing.T) {
+	arr := []int{}
+	arrFunk := NewArrayFunk(arr)
+	assert.Equal(t, 0, arrFunk.Length())
+}
+
+func Test_Empty(t *testing.T) {
+	arr := []int{1, 2, 3}
+	arrFunk := NewArrayFunk(arr)
+	emptyFunk := arrFunk.Filter(func(i int) bool { return i > 3 })
+	assert.True(t, emptyFunk.Empty())
+}

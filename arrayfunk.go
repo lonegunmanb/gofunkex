@@ -1,7 +1,6 @@
 package gofunkex
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/thoas/go-funk"
@@ -13,7 +12,7 @@ type ArrayFunk struct {
 
 func NewArrayFunk(arr interface{}) ArrayFunk {
 	if !isArray(arr) {
-		panic(fmt.Sprintf("non nil array or slice required, got %s-%s", arr, reflect.TypeOf(arr).Kind().String()))
+		panic("non nil array or slice required")
 	}
 	return ArrayFunk{arr}
 }
@@ -82,6 +81,14 @@ func (something ArrayFunk) Distinct() ArrayFunk {
 		neatSlice = reflect.Append(neatSlice, reflect.ValueOf(key))
 	}
 	return NewArrayFunk(neatSlice.Interface())
+}
+func (something ArrayFunk) Empty() bool {
+	return something.Length() == 0
+}
+
+func (something ArrayFunk) Length() int {
+	arrValue := reflect.ValueOf(something.Arr)
+	return arrValue.Len()
 }
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
