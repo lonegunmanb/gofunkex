@@ -32,6 +32,13 @@ func Test_NilShouldFailedCheck(t *testing.T) {
 	assert.False(t, actual)
 }
 
+func Test_Pass_Nil_Slice_To_New_ArrayFunk_Should_Return_Empty_Slice(t *testing.T) {
+	var arr []int
+	actual := NewArrayFunk(arr).Arr.([]int)
+	assert.NotNil(t, actual)
+	assert.Empty(t, actual)
+}
+
 func Test_SimpleMap(t *testing.T) {
 	arr := []int{1, 2}
 	expectedArr := []string{"1", "2"}
@@ -43,8 +50,8 @@ func Test_SimpleMap(t *testing.T) {
 
 func Test_Map_On_Empty_Slice(t *testing.T) {
 	var arr []int
-	actual := NewArrayFunk(arr).Map(func(i int) string { return strconv.Itoa(i) }).Arr
-	assert.Empty(t, actual)
+	actual := NewArrayFunk(arr).Map(func(i int) string { return strconv.Itoa(i) }).Arr.([]string)
+	assertEmptyStringSlice(t, actual)
 }
 
 func Test_CheckPredicateType_Nil_Predicate(t *testing.T) {
@@ -107,7 +114,7 @@ func Test_Filter(t *testing.T) {
 
 func Test_Filter_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
 	var arr []int
-	assert.Empty(t, NewArrayFunk(arr).Filter(func(i int) bool { return true }).Arr)
+	assertEmptyIntSlice(t, NewArrayFunk(arr).Filter(func(i int) bool { return true }).Arr.([]int))
 }
 
 func Test_Contains(t *testing.T) {
@@ -132,7 +139,7 @@ func Test_Distinct(t *testing.T) {
 
 func Test_Distinct_On_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
 	var arr []int
-	assert.Empty(t, NewArrayFunk(arr).Distinct().Arr)
+	assertEmptyIntSlice(t, NewArrayFunk(arr).Distinct().Arr.([]int))
 }
 
 func Test_Length(t *testing.T) {
@@ -141,7 +148,7 @@ func Test_Length(t *testing.T) {
 	assert.Equal(t, 3, arrFunk.Length())
 }
 
-func Test_Length_Empty_Slice(t *testing.T) {
+func Test_Length_Empty_Slice_Should_Return_Zero(t *testing.T) {
 	var arr []int
 	arrFunk := NewArrayFunk(arr)
 	assert.Equal(t, 0, arrFunk.Length())
@@ -201,10 +208,10 @@ func Test_Initial(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(expected, arrFunk.Initial().Arr))
 }
 
-func Test_Initial_Empty_Slice_Should_Return_Nil(t *testing.T) {
+func Test_Initial_Empty_Slice_Should_Return_Empty(t *testing.T) {
 	var arr []int
 	initial := NewArrayFunk(arr).Initial()
-	assert.Nil(t, initial.Arr)
+	assertEmptyIntSlice(t, initial.Arr.([]int))
 }
 
 func Test_Tail(t *testing.T) {
@@ -216,7 +223,7 @@ func Test_Tail(t *testing.T) {
 
 func Test_Tail_Empty_Slice_Should_Return_Nil(t *testing.T) {
 	var arr []int
-	assert.Nil(t, NewArrayFunk(arr).Tail().Arr)
+	assertEmptyIntSlice(t, NewArrayFunk(arr).Tail().Arr.([]int))
 }
 
 func Test_Flatten(t *testing.T) {
@@ -231,4 +238,62 @@ func Test_Flatten_On_One_Dimension_Slice(t *testing.T) {
 	arr := []int{1, 2, 3}
 	actual := NewArrayFunk(arr).Flatten().Arr
 	assert.True(t, reflect.DeepEqual(arr, actual))
+}
+
+func Test_Take(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := arr[:2]
+	assert.True(t, reflect.DeepEqual(expected, NewArrayFunk(arr).Take(2).Arr))
+}
+
+func Test_Take_More_Than_Len_Should_Return_Origin_Slice(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := arr
+	actual := NewArrayFunk(arr).Take(4).Arr
+	assert.True(t, reflect.DeepEqual(expected, actual))
+}
+
+func Test_Take_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
+	var arr []int
+	actual := NewArrayFunk(arr).Take(10).Arr.([]int)
+	assertEmptyIntSlice(t, actual)
+}
+
+func Test_Take_Negative_Should_Return_Empty_Slice(t *testing.T) {
+	arr := []int{1, 2, 3}
+	assertEmptyIntSlice(t, NewArrayFunk(arr).Take(-1).Arr.([]int))
+}
+
+func Test_Skip(t *testing.T) {
+	arr := []int{1, 2, 3}
+	expected := arr[1:]
+	assert.True(t, reflect.DeepEqual(expected, NewArrayFunk(arr).Skip(1).Arr))
+}
+
+func Test_Skip_More_Than_Len_Should_Return_Empty_Slice(t *testing.T) {
+	arr := []int{1, 2, 3}
+	actual := NewArrayFunk(arr).Skip(4).Arr.([]int)
+	assertEmptyIntSlice(t, actual)
+}
+
+func Test_Skip_Empty_Slice_Should_Return_Empty_Slice(t *testing.T) {
+	var arr []int
+	actual := NewArrayFunk(arr).Skip(1).Arr.([]int)
+	assertEmptyIntSlice(t, actual)
+}
+
+func Test_Skip_Negative_Should_Skip_Zero(t *testing.T) {
+	arr := []int{1, 2, 3}
+	actual := NewArrayFunk(arr).Skip(-1).Arr
+	assert.True(t, reflect.DeepEqual(arr, actual))
+}
+
+func assertEmptyIntSlice(t *testing.T, slice []int) {
+	assert.NotNil(t, slice)
+	assert.Equal(t, 0, len(slice))
+}
+
+func assertEmptyStringSlice(t *testing.T, slice []string) {
+	assert.NotNil(t, slice)
+	assert.Equal(t, 0, len(slice))
 }

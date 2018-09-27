@@ -14,6 +14,10 @@ func NewArrayFunk(arr interface{}) ArrayFunk {
 	if !isArray(arr) {
 		panic("non nil array or slice required")
 	}
+	arrValue := reflect.ValueOf(arr)
+	if arrValue.IsNil() {
+		arr = reflect.MakeSlice(arrValue.Type(), 0, 0).Interface()
+	}
 	return ArrayFunk{arr}
 }
 
@@ -113,6 +117,35 @@ func (something ArrayFunk) Tail() ArrayFunk {
 }
 func (something ArrayFunk) Flatten() ArrayFunk {
 	return NewArrayFunk(funk.FlattenDeep(something.Arr))
+}
+
+func (something ArrayFunk) Take(i int) ArrayFunk {
+	return NewArrayFunk(takeSlice(something, 0, i).Interface())
+}
+
+func (something ArrayFunk) Skip(i int) ArrayFunk {
+	arrValue := reflect.ValueOf(something.Arr)
+	length := arrValue.Len()
+
+	return NewArrayFunk(takeSlice(something, i, length).Interface())
+}
+
+func takeSlice(something ArrayFunk, low, high int) reflect.Value {
+	arrValue := reflect.ValueOf(something.Arr)
+	length := arrValue.Len()
+	low = adjustBoundary(low, length)
+	high = adjustBoundary(high, length)
+	newSlice := arrValue.Slice(low, high)
+	return newSlice
+}
+
+func adjustBoundary(boundary int, length int) int {
+	if boundary > length {
+		boundary = length
+	} else if boundary < 0 {
+		boundary = 0
+	}
+	return boundary
 }
 
 func checkPredicateType(predicate interface{}, arr interface{}) {
