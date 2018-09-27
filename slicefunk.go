@@ -6,34 +6,34 @@ import (
 	"github.com/thoas/go-funk"
 )
 
-type ArrayFunk struct {
+type SliceFunk struct {
 	Arr interface{}
 }
 
-func NewArrayFunk(arr interface{}) ArrayFunk {
-	if !isArray(arr) {
-		panic("non nil array or slice required")
+func NewSliceFunk(arr interface{}) SliceFunk {
+	if !isSlice(arr) {
+		panic("non nil slice required")
 	}
 	arrValue := reflect.ValueOf(arr)
 	if arrValue.IsNil() {
 		arr = reflect.MakeSlice(arrValue.Type(), 0, 0).Interface()
 	}
-	return ArrayFunk{arr}
+	return SliceFunk{arr}
 }
 
-func isArray(arr interface{}) bool {
+func isSlice(arr interface{}) bool {
 	if arr == nil {
 		return false
 	}
 	kind := reflect.TypeOf(arr).Kind()
-	return kind == reflect.Array || kind == reflect.Slice
+	return kind == reflect.Slice
 }
 
-func (something ArrayFunk) Map(mapper interface{}) ArrayFunk {
-	return NewArrayFunk(funk.Map(something.Arr, mapper))
+func (something SliceFunk) Map(mapper interface{}) SliceFunk {
+	return NewSliceFunk(funk.Map(something.Arr, mapper))
 }
 
-func (something ArrayFunk) AnyMeets(predicate interface{}) bool {
+func (something SliceFunk) AnyMeets(predicate interface{}) bool {
 	arr := something.Arr
 	checkPredicateType(predicate, arr)
 	funcValue := reflect.ValueOf(predicate)
@@ -47,7 +47,7 @@ func (something ArrayFunk) AnyMeets(predicate interface{}) bool {
 	}
 	return false
 }
-func (something ArrayFunk) AllMeets(predicate interface{}) bool {
+func (something SliceFunk) AllMeets(predicate interface{}) bool {
 	arr := something.Arr
 	checkPredicateType(predicate, arr)
 	funcValue := reflect.ValueOf(predicate)
@@ -64,15 +64,15 @@ func (something ArrayFunk) AllMeets(predicate interface{}) bool {
 	}
 	return true
 }
-func (something ArrayFunk) Filter(predicate interface{}) ArrayFunk {
-	return NewArrayFunk(funk.Filter(something.Arr, predicate))
+func (something SliceFunk) Filter(predicate interface{}) SliceFunk {
+	return NewSliceFunk(funk.Filter(something.Arr, predicate))
 }
 
-func (something ArrayFunk) Contains(item interface{}) bool {
+func (something SliceFunk) Contains(item interface{}) bool {
 	return funk.Contains(something.Arr, item)
 }
 
-func (something ArrayFunk) Distinct() ArrayFunk {
+func (something SliceFunk) Distinct() SliceFunk {
 	arr := something.Arr
 	arrValue := reflect.ValueOf(arr)
 	set := make(map[interface{}]struct{})
@@ -87,50 +87,72 @@ func (something ArrayFunk) Distinct() ArrayFunk {
 	for key := range set {
 		neatSlice = reflect.Append(neatSlice, reflect.ValueOf(key))
 	}
-	return NewArrayFunk(neatSlice.Interface())
+	return NewSliceFunk(neatSlice.Interface())
 }
-func (something ArrayFunk) Empty() bool {
+func (something SliceFunk) Empty() bool {
 	return something.Length() == 0
 }
 
-func (something ArrayFunk) Length() int {
+func (something SliceFunk) Length() int {
 	arrValue := reflect.ValueOf(something.Arr)
 	return arrValue.Len()
 }
 
-func (something ArrayFunk) Count(predicate interface{}) int {
+func (something SliceFunk) Count(predicate interface{}) int {
 	return something.Filter(predicate).Length()
 }
 
-func (something ArrayFunk) Head() interface{} {
+func (something SliceFunk) Head() interface{} {
 	return funk.Head(something.Arr)
 }
 
-func (something ArrayFunk) Last() interface{} {
+func (something SliceFunk) Last() interface{} {
 	return funk.Last(something.Arr)
 }
-func (something ArrayFunk) Initial() ArrayFunk {
-	return NewArrayFunk(funk.Initial(something.Arr))
+func (something SliceFunk) Initial() SliceFunk {
+	return NewSliceFunk(funk.Initial(something.Arr))
 }
-func (something ArrayFunk) Tail() ArrayFunk {
-	return NewArrayFunk(funk.Tail(something.Arr))
+func (something SliceFunk) Tail() SliceFunk {
+	return NewSliceFunk(funk.Tail(something.Arr))
 }
-func (something ArrayFunk) Flatten() ArrayFunk {
-	return NewArrayFunk(funk.FlattenDeep(something.Arr))
-}
-
-func (something ArrayFunk) Take(i int) ArrayFunk {
-	return NewArrayFunk(takeSlice(something, 0, i).Interface())
+func (something SliceFunk) Flatten() SliceFunk {
+	return NewSliceFunk(funk.FlattenDeep(something.Arr))
 }
 
-func (something ArrayFunk) Skip(i int) ArrayFunk {
+func (something SliceFunk) Take(i int) SliceFunk {
+	return NewSliceFunk(takeSlice(something, 0, i).Interface())
+}
+
+func (something SliceFunk) Skip(i int) SliceFunk {
 	arrValue := reflect.ValueOf(something.Arr)
 	length := arrValue.Len()
 
-	return NewArrayFunk(takeSlice(something, i, length).Interface())
+	return NewSliceFunk(takeSlice(something, i, length).Interface())
 }
 
-func takeSlice(something ArrayFunk, low, high int) reflect.Value {
+func (something SliceFunk) Concat(funk2 SliceFunk) SliceFunk {
+	concatTypeCheck(something, funk2)
+	sliceType := reflect.SliceOf(reflect.ValueOf(something.Arr).Type().Elem())
+	newSlice := reflect.MakeSlice(sliceType, 0, something.Length()+funk2.Length())
+	newSlice = concatTwoSlices(newSlice, something, funk2)
+	return NewSliceFunk(newSlice.Interface())
+}
+
+func concatTwoSlices(newSlice reflect.Value, funk1 SliceFunk, funk2 SliceFunk) reflect.Value {
+	newSlice = reflect.AppendSlice(newSlice, reflect.ValueOf(funk1.Arr))
+	newSlice = reflect.AppendSlice(newSlice, reflect.ValueOf(funk2.Arr))
+	return newSlice
+}
+
+func concatTypeCheck(funk1 SliceFunk, funk2 SliceFunk) {
+	type1 := reflect.ValueOf(funk1.Arr).Type().Elem()
+	type2 := reflect.ValueOf(funk2.Arr).Type().Elem()
+	if type1 != type2 {
+		panic("Cannot concat different types")
+	}
+}
+
+func takeSlice(something SliceFunk, low, high int) reflect.Value {
 	arrValue := reflect.ValueOf(something.Arr)
 	length := arrValue.Len()
 	low = adjustBoundary(low, length)
