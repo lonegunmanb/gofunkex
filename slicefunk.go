@@ -137,7 +137,7 @@ func (something SliceFunk) Concat(funk2 SliceFunk) SliceFunk {
 	newSlice = concatTwoSlices(newSlice, something, funk2)
 	return NewSliceFunk(newSlice.Interface())
 }
-func (something SliceFunk) GroupBy(groupKeySelector interface{}) MapFunk {
+func (something SliceFunk) GroupBy(groupKeySelector interface{}) GroupFunk {
 	arr := something.Arr
 	if groupKeySelector == nil {
 		panic("GroupKeySelector required")
@@ -166,7 +166,7 @@ func (something SliceFunk) GroupBy(groupKeySelector interface{}) MapFunk {
 		groupSlice = reflect.Append(groupSlice, ele)
 		resultMap.SetMapIndex(key, groupSlice)
 	}
-	return NewMapFunk(resultMap.Interface())
+	return NewGroupFunk(resultMap.Interface())
 }
 
 func concatTwoSlices(newSlice reflect.Value, funk1 SliceFunk, funk2 SliceFunk) reflect.Value {

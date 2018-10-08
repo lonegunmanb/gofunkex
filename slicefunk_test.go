@@ -304,9 +304,9 @@ func Test_GroupBy(t *testing.T) {
 	funk := NewSliceFunk([]int{1, 2, 3, 4})
 	groupedFunk := funk.GroupBy(func(i int) int { return i % 2 })
 	expectedSample := make(map[int][]int)
-	arrType := reflect.TypeOf(groupedFunk.Arr)
+	arrType := reflect.TypeOf(groupedFunk.Map)
 	assert.Equal(t, reflect.TypeOf(expectedSample), arrType)
-	groupedMap := groupedFunk.Arr.(map[int][]int)
+	groupedMap := groupedFunk.Map.(map[int][]int)
 	assert.Equal(t, 2, len(groupedMap))
 	evenSlice := groupedMap[0]
 	oddSlice := groupedMap[1]
