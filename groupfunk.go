@@ -17,16 +17,9 @@ func NewGroupFunk(mapValue interface{}) GroupFunk {
 }
 
 func (this *GroupFunk) Sums() MapFunk {
-	keyType := reflect.TypeOf(this.Map).Key()
-	resultMapType := reflect.MapOf(keyType, reflect.TypeOf(float64(0)))
-	resultMap := reflect.MakeMap(resultMapType)
-	mapValue := reflect.ValueOf(this.Map)
-	for _, key := range mapValue.MapKeys() {
-		slice := mapValue.MapIndex(key)
-		sum := funk.Sum(slice.Interface())
-		resultMap.SetMapIndex(key, reflect.ValueOf(sum))
-	}
-	return NewMap(resultMap.Interface())
+	return this.MapElem(func(slice interface{}) float64 {
+		return funk.Sum(slice)
+	})
 }
 
 func isGroup(mapValue interface{}) bool {
