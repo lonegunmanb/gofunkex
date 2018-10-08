@@ -15,23 +15,31 @@ func NewMapFunk(mapValue interface{}) MapFunk {
 	}
 	return MapFunk{mapValue}
 }
-func (this *MapFunk) MapElem(aggregator interface{}) MapFunk {
-	if !funk.IsFunction(aggregator, 1, 1) {
-		panic("Aggregator must be a function with one slice input and return something")
+func (this MapFunk) MapElem(mapper interface{}) MapFunk {
+	return this.mapElem(nil, mapper)
+}
+
+func (this MapFunk) mapElem(dstType reflect.Type, mapper interface{}) MapFunk {
+	if !funk.IsFunction(mapper, 1, 1) {
+		panic("Mapper must be a function with one slice input and return something")
 	}
-	aggregatorType := reflect.TypeOf(aggregator)
-	aggregatorValue := reflect.ValueOf(aggregator)
+	mapperType := reflect.TypeOf(mapper)
+	mapperValue := reflect.ValueOf(mapper)
 	keyType := reflect.TypeOf(this.Map).Key()
-	resultMapType := reflect.MapOf(keyType, aggregatorType.Out(0))
+	if dstType == nil {
+		dstType = mapperType.Out(0)
+	}
+	resultMapType := reflect.MapOf(keyType, dstType)
 	resultMap := reflect.MakeMap(resultMapType)
 	mapValue := reflect.ValueOf(this.Map)
 	for _, key := range mapValue.MapKeys() {
 		slice := mapValue.MapIndex(key)
-		aggregate := aggregatorValue.Call([]reflect.Value{slice})[0]
-		resultMap.SetMapIndex(key, aggregate)
+		dst := mapperValue.Call([]reflect.Value{slice})[0]
+		resultMap.SetMapIndex(key, dst)
 	}
 	return NewMapFunk(resultMap.Interface())
 }
+
 func isMap(mapValue interface{}) bool {
 	if mapValue == nil {
 		return false
