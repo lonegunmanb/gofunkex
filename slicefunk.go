@@ -137,6 +137,37 @@ func (something SliceFunk) Concat(funk2 SliceFunk) SliceFunk {
 	newSlice = concatTwoSlices(newSlice, something, funk2)
 	return NewSliceFunk(newSlice.Interface())
 }
+func (something SliceFunk) GroupBy(groupKeySelector interface{}) MapFunk {
+	arr := something.Arr
+	if groupKeySelector == nil {
+		panic("GroupKeySelector required")
+	}
+	if !funk.IsFunction(groupKeySelector, 1, 1) {
+		panic("GroupKeySelector must be a function")
+	}
+	selectorType := reflect.TypeOf(groupKeySelector)
+	elemType := reflect.TypeOf(arr).Elem()
+	if elemType != selectorType.In(0) {
+		panic("Incompatible slice and key selector type")
+	}
+	sliceType := reflect.TypeOf(something.Arr)
+	keyType := selectorType.Out(0)
+	mapType := reflect.MapOf(keyType, sliceType)
+	resultMap := reflect.MakeMap(mapType)
+	sliceValue := reflect.ValueOf(arr)
+	selectorValue := reflect.ValueOf(groupKeySelector)
+	for i := 0; i < sliceValue.Len(); i++ {
+		ele := sliceValue.Index(i)
+		key := selectorValue.Call([]reflect.Value{ele})[0]
+		groupSlice := resultMap.MapIndex(key)
+		if !groupSlice.IsValid() {
+			groupSlice = reflect.MakeSlice(sliceType, 0, 1)
+		}
+		groupSlice = reflect.Append(groupSlice, ele)
+		resultMap.SetMapIndex(key, groupSlice)
+	}
+	return NewMapFunk(resultMap.Interface())
+}
 
 func concatTwoSlices(newSlice reflect.Value, funk1 SliceFunk, funk2 SliceFunk) reflect.Value {
 	newSlice = reflect.AppendSlice(newSlice, reflect.ValueOf(funk1.Arr))
@@ -175,7 +206,7 @@ func checkPredicateType(predicate interface{}, arr interface{}) {
 		panic("Predicate required")
 	}
 	if !funk.IsFunction(predicate, 1, 1) {
-		panic("Second argument must be function")
+		panic("Predicate must be function")
 	}
 	funcValue := reflect.ValueOf(predicate)
 	funcType := funcValue.Type()

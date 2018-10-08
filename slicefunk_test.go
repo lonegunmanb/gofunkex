@@ -300,6 +300,20 @@ func Test_Concat(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(expected, funk1.Concat(funk2).Arr))
 }
 
+func Test_GroupBy(t *testing.T) {
+	funk := NewSliceFunk([]int{1, 2, 3, 4})
+	groupedFunk := funk.GroupBy(func(i int) int { return i % 2 })
+	expectedSample := make(map[int][]int)
+	arrType := reflect.TypeOf(groupedFunk.Arr)
+	assert.Equal(t, reflect.TypeOf(expectedSample), arrType)
+	groupedMap := groupedFunk.Arr.(map[int][]int)
+	assert.Equal(t, 2, len(groupedMap))
+	evenSlice := groupedMap[0]
+	oddSlice := groupedMap[1]
+	assert.ElementsMatch(t, []int{2, 4}, evenSlice)
+	assert.ElementsMatch(t, []int{1, 3}, oddSlice)
+}
+
 func assertEmptyIntSlice(t *testing.T, slice []int) {
 	assert.NotNil(t, slice)
 	assert.Equal(t, 0, len(slice))
